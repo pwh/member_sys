@@ -1,0 +1,90 @@
+Member_sys is a bare-bones web application to manage an organization's
+membership list and restrict certain web pages for logged-in members only.
+
+It comprises a MySQL schema and a set of PHP scripts that implement basic
+administration and control functions. It uses no client-side scripts. Session
+management requires browser cookies.
+
+Features:
+  secure password management
+  localization of public-facing pages (admin pages are English only)
+  self-registration (includes a puny bot deflector)
+  new users get a unique id number, and all other attributes are mutable
+  limited retention of session data
+  three user classes: registered user, paid-up member, administrator
+  admins can record dues payments and handle lost user passwords
+  admins can upload & download via .csv, with selectable character encoding
+  GPL license
+  
+Missing features:
+  aesthetic polish, tuned user experience
+  online dues payment
+  sanity checks of phone numbers and addresses (localization makes that hard)
+  some user attributes ('Road name' suits our application, likely not yours)
+  languages (so far it has English and a barely-started French translation)
+  reporting (see http://forums.mysql.com/read.php?33,41056,41056#msg-41056)
+  management of organization's events / mailouts / newsletters
+  transaction locks among multiple administrators
+
+The app does not depend on any framework (it was a PHP learning project).
+It does use phpass (www.openwall.com/phpass) for password hashing.
+
+We tested member_sys with Firefox and Internet Explorer, in two LAMP server 
+configurations.
+  Configuration 1 was a web hosting service running:
+    Apache2 2.2.19
+    MySQL 5.1.63-cll (client 4.1.22)
+    PHP 5.2.17
+    phpMyAdmin 3.4.10.1
+  Configuration 2 was a Ubuntu VM with:
+    Apache2 2.2.20-1ubuntu
+    MySQL 5.1.62-0ubuntu (client 5.1.5.1.62-0ubuntu)
+    PHP 5.5.3.7
+    phpMyAdmin 3.4.5-1
+    
+=======================
+Member_sys setup notes:
+=======================
+
+Start with git clone to a directory accessible to your web server. Configure
+that to serve directory member_sys. 
+ 
+The (documented) database schema is on lib/schema.sql; it can be used with
+phpMyAdmin to construct the application database.
+
+File lib/mem_config.php contains local configuration options. (Like all of the
+PHP scripts, the script contains documentation.)
+  MEM_APP_ROOT locates the scripts for the web server.
+  MEM_DATABASE_* tells PHP about your database.
+  MEM_TEMPDIR must point to a directory where your web server can write.
+  MEM_DEBUG should be false for production use.
+
+There is a trick to setting up the application's *first* administrator user:
+  1) open mem_profile.php in a browser to register and assign a password
+  2) use phpMyAdmin to modify the user's row in table 'users':
+       set column i_administrator to 1
+       set column i_membership_year to a future year, e.g. 2028
+       
+Use admin/mem_upload.php to set up the 'translations' table. You can upload
+sample file lib/translations_utf8.csv.
+
+A guided tour begins at demo page http://your_server/member_sys/mem_index.html.
+
+Tip: I found it useful to copy the links from that page and page
+http://your_server/member_sys/admin/mem_admin_index.php into a folder in the
+web browser's Bookmarks/Favorites list. Also, the browser's 'Back' option is
+your friend.
+
+You'll want to customize at least a few of the scripts; for example, see the
+e-mail message about dues payment in lib/mem_only.php.
+
+=======================
+Translations
+=======================
+
+The easiest way to handle translation is probably to modify
+lib/translations_utf8.csv using a spreadsheet program like OpenOffice Calc.
+Please help by sending me updates! (Note: the texts in the English column must
+exactly match corresponding texts in the PHP scripts. Many are used in more
+than one PHP script, so you need to hunt down all occurrences before making a
+change in that column.)

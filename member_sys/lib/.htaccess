@@ -1,0 +1,3 @@
+# prevent browser access to library files
+order deny, allow
+deny from all
